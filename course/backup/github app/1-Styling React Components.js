@@ -9,6 +9,20 @@ import reportWebVitals from './reportWebVitals';
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
+const testData = [
+  { name: "Dan Abramov", avatar_url: "https://avatars0.githubusercontent.com/u/810438?v=4", company: "@facebook" },
+  { name: "Sophie Alpert", avatar_url: "https://avatars2.githubusercontent.com/u/6820?v=4", company: "Humu" },
+  { name: "Sebastian Markbåge", avatar_url: "https://avatars2.githubusercontent.com/u/63648?v=4", company: "Facebook" },
+];
+
+const CardList = (props) => {
+  <div>
+    <Card />
+  </div>
+
+};
+
+
 class Card extends React.Component {
   render() {
     return (
@@ -16,7 +30,7 @@ class Card extends React.Component {
         <img src='http://placehold.it/75' alt='imagen' />
         <div className='info' style={{ display: 'inline-block', marginLeft: 15 }}>
           <div className='name' style={{ fontSize: '125%' }}>Name here...</div>
-          <div className='company' style={{ color: Math.random() < 0.5 ? 'green': 'red' }} >
+          <div className='company' style={{ color: Math.random() < 0.5 ? 'blue' : 'black' }} >
             Company here...
           </div>
         </div>
