@@ -1,101 +1,113 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
 import './index.css';
-// import { useState } from 'react';
-import reportWebVitals from './reportWebVitals';
+import { useState } from 'react';
+//import axios from 'axios';
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+const PlayNumber = props => (
+  <button
+    className="number"
+    style={{ backgroundColor: colors[props.status]}}
+    onClick={() => console.log('Number', props.number)}  >
+    {props.number}
+  </button>
+);
 
-//// GitHub usernames: gaearon, sophiebits, patux, dayraaAlvarez, paulotrujillo
-reportWebVitals();
+const StarsDisplay = props => (
+  <>
+    {utils.range(1, props.count).map(starId =>
+      <div key={starId} className="star" />
+    )}
+  </>
+);
 
-const testData = [
-  { name: "Paulo Trujillo", avatar_url: "https://avatars.githubusercontent.com/u/4239850?v=4", company: "@Vanco", id: "4239850" },
-  { name: "Dan Abramov", avatar_url: "https://avatars0.githubusercontent.com/u/810438?v=4", company: "@facebook", id: "78257856" },
-  { name: "Sophie Alpert", avatar_url: "https://avatars2.githubusercontent.com/u/6820?v=4", company: "Humu", id: "28931973" },
-  { name: "Dayra Alvarez", avatar_url: "https://avatars3.githubusercontent.com/u/37418870?v=4", company: "Facebook", id: "37418870" },
-];
+const StarMatch = () => {
+  const [stars, setStars] = useState(utils.random(1, 9));
+  const [availableNums, setAvailableNums] = useState(utils.range(1,9));
+  const [candidateNums, setCandidateNums] = useState([]);
 
-const CardList = (props) => {
+  const candidatesAreWrong = utils.sum(candidateNums) > stars;
+
+  const numberStatus = (number) => {
+    if (!availableNums.includes(number)) {
+      return 'used'
+    }
+    if (candidateNums.includes(number)) {
+      return candidatesAreWrong ? 'wrong' : 'candidate';
+    }
+    return 'available'
+  };
+
   return (
-    <div>
-      { props.profiles.map(profile => <Card {...profile} key={profile.id} />)}
+    <div className='game'>
+      <div className='help'>
+        Pick 1 or more numbers that sum to the number of stars
+      </div>
+
+      <div className="body">
+
+        <div className="left" >
+          <StarsDisplay count={stars} />
+        </div>
+
+        <div className="right">
+          {utils.range(1, 9).map(number =>
+            <PlayNumber
+              key={number}
+              status={numberStatus(number)}
+              number={number}
+            />
+          )}
+
+        </div>
+
+      </div>
+
+      <div className="timer">Time Remaining: 10</div>
+
     </div>
+
   );
 };
 
-class Card extends React.Component {
-  render() {
-    const profile = this.props
-    return (
-      <div className='github-profile'>
-        <img src={profile.avatar_url} alt='imagen' />
-        <div className='info'>
-          <div className='name'> {profile.name} </div>
-          <div className='company'>{profile.company}</div>
-        </div>
-      </div>
-    );
+// Color Theme
+const colors = {
+  available: 'lightgray',
+  used: 'lightgreen',
+  wrong: 'lightcoral',
+  candidate: 'deepskyblue',
+};
 
-  }
-}
+// Math science
+const utils = {
+  // Sum an array
+  sum: arr => arr.reduce((acc, curr) => acc + curr, 0),
 
-class Form extends React.Component {
-  state = { userName: '' };
-  handleSubmit = async (event) => {
-    event.preventDefault();
-    const resp = await
-      axios.get(`https://api.github.com/users/${this.state.userName}`);
-    this.props.onSubmit(resp.data);
-    this.setState({ userName: '' });
-    this.setState({ userName: '' });
+  // create an array of numbers between min and max (edges included)
+  range: (min, max) => Array.from({ length: max - min + 1 }, (_, i) => min + i),
 
-  }
+  // pick a random number between min and max (edges included)
+  random: (min, max) => min + Math.floor(Math.random() * (max - min + 1)),
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <input type='text'
-          value={this.state.userName}
-          placeholder='Github Username:'
-          onChange={event => this.setState({ userName: event.target.value })}
-          required />
-        <button>Add Card</button>
-      </form>
-    );
-  }
-}
+  // Given an array of numbers and a max...
+  // Pick a random sum (< max) from the set of all available sums in arr
+  randomSumIn: (arr, max) => {
+    const sets = [[]];
+    const sums = [];
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0, len = sets.length; j < len; j++) {
+        const candidateSet = sets[j].concat(arr[i]);
+        const candidateSum = utils.sum(candidateSet);
+        if (candidateSum <= max) {
+          sets.push(candidateSet);
+          sums.push(candidateSum);
+        }
+      }
+    }
+    return sums[utils.random(0, sums.length - 1)];
+  },
+};
 
-class App extends React.Component {
-
-  state = {
-    profiles: [],
-    //profiles: testData,
-
-  };
-
-  addNewProfile = (profileData) => {
-    this.setState(prevState => ({
-      profiles: [...prevState.profiles, profileData]
-    }))
-    //console.log('App', profileData);
-  };
-
-  render() {
-    return (
-      <div>
-        <div className="header">{this.props.title}</div>
-        <Form onSubmit={this.addNewProfile} />
-        <CardList profiles={this.state.profiles} />
-      </div>
-    );
-  }
-}
-
-ReactDOM.render(
-  <App title='The Github Cards App' />,
+ReactDOM.render(<StarMatch />,
   document.getElementById('content'),
 );
