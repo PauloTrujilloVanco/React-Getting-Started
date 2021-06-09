@@ -4,6 +4,14 @@ import './index.css';
 import { useState } from 'react';
 //import axios from 'axios';
 
+const StarsDisplay = props => (
+  <>
+    {utils.range(1, props.count).map(starId =>
+      <div key={starId} className="star" />
+    )}
+  </>
+);
+
 const PlayNumber = props => (
   <button
     className="number"
@@ -16,33 +24,20 @@ const PlayNumber = props => (
 const PlayAgain = props => (
   <div className="game-done">
     <h1
-      style={{
-        color: props.gameStatus === 'Lost'
-          ? 'red' : 'blue'
-      }}
+      style={{ color: props.gameStatus === 'Lost' ? 'red' : 'blue' }}
     >
-      {
-        props.gameStatus
-      }
+      {props.gameStatus}
     </h1>
     <button onClick={props.onClick}>Play Again</button>
   </div>
 );
 
-
-const StarsDisplay = props => (
-  <>
-    {utils.range(1, props.count).map(starId =>
-      <div key={starId} className="star" />
-    )}
-  </>
-);
-
-const StarMatch = () => {
+const Game = (props) => {
   const [stars, setStars] = useState(utils.random(1, 9));
   const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
   const [candidateNums, setCandidateNums] = useState([]);
   const [secondsLeft, setSecondsLeft] = useState(10);
+
   useEffect(() => {
     if (secondsLeft > 0 && availableNums.length >> 0) {
       const timerID = setTimeout(() => {
@@ -59,13 +54,6 @@ const StarMatch = () => {
       : secondsLeft === 0 ? 'Lost' : 'Active'
 
 
-  const resetGame = () => {
-    setStars(utils.random(1, 9));
-    setAvailableNums(utils.range(1, 9));
-    setCandidateNums([]);
-    setSecondsLeft(10);
-  }
-
   const numberStatus = (number) => {
     if (!availableNums.includes(number)) {
       return 'used'
@@ -77,7 +65,7 @@ const StarMatch = () => {
   };
 
   const onNumberClick = (number, currentStatus) => {
-    if (gameStatus !== 'Active' || currentStatus === 'used' ) {
+    if (gameStatus !== 'Active' || currentStatus === 'used') {
       return;
     }
 
@@ -111,7 +99,7 @@ const StarMatch = () => {
         <div className="left" >
           {
             gameStatus !== 'Active'
-              ? (<PlayAgain onClick={resetGame} gameStatus={gameStatus} />)
+              ? (<PlayAgain onClick={props.startNewGame} gameStatus={gameStatus} />)
               : (<StarsDisplay count={stars} />)
 
           }
@@ -136,9 +124,17 @@ const StarMatch = () => {
     </div>
 
   );
+
 };
 
-// Color Theme
+const StarMatch = () => {
+  const [gameId, setGameId] = useState(1)
+  return <Game key={gameId}
+    startNewGame={() => setGameId(gameId + 1)}
+  />
+};
+
+// Color Theme 
 const colors = {
   available: 'lightgray',
   used: 'lightgreen',
